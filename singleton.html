@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Food Delivery App - Singleton Config</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 50px;
+      background: #f9f9f9;
+    }
+    h1 {
+      color: #333;
+    }
+    input, select, button {
+      margin: 10px;
+      padding: 8px;
+      font-size: 16px;
+    }
+    button {
+      cursor: pointer;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #222;
+    }
+    .card {
+      display: inline-block;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      margin-bottom: 30px;
+    }
+    table {
+      width: 80%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: #4CAF50;
+      color: white;
+    }
+    tr:hover {
+      background: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🍔 Food Delivery App</h1>
+    <h3>Price Calculator (Singleton Config)</h3>
+
+    <label>Enter Base Price: </label>
+    <input type="number" id="basePrice" placeholder="e.g. 100" /><br />
+
+    <label>Choose Discount Policy: </label>
+    <select id="policy">
+      <option value="none">None</option>
+      <option value="newUser">New User (10%)</option>
+      <option value="festive">Festive (20%)</option>
+    </select><br />
+
+    <button onclick="calculatePrice()">Calculate</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <h2>📊 Calculation History</h2>
+  <table id="historyTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Base Price</th>
+        <th>Policy</th>
+        <th>Final Price</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+
+  <script>
+    // ✅ Singleton Pattern Implementation
+    const AppConfig = (function () {
+      let instance; // private instance
+
+      function createInstance() {
+        return {
+          currency: "USD",
+          taxRate: 0.08,
+          discountPolicy: {
+            none: 0,
+            newUser: 0.1,
+            festive: 0.2,
+          },
+          getFinalPrice(basePrice, policy = "none") {
+            let price = basePrice + basePrice * this.taxRate;
+            if (policy && this.discountPolicy[policy]) {
+              price -= price * this.discountPolicy[policy];
+            }
+            return price.toFixed(2);
+          }
+        };
+      }
+
+      return {
+        getInstance: function () {
+          if (!instance) {
+            instance = createInstance();
+          }
+          return instance;
+        }
+      };
+    })();
+
+    let historyCount = 0;
+
+    // ✅ Function to calculate and display price
+    function calculatePrice() {
+      const basePrice = parseFloat(document.getElementById("basePrice").value);
+      const policy = document.getElementById("policy").value;
+      const config = AppConfig.getInstance();
+
+      if (isNaN(basePrice) || basePrice <= 0) {
+        document.getElementById("result").innerText = "❌ Please enter a valid price.";
+        return;
+      }
+
+      const finalPrice = config.getFinalPrice(basePrice, policy);
+
+      // Show latest result
+      document.getElementById("result").innerText =
+        `Base Price: ${basePrice} ${config.currency} | Final Price: ${finalPrice} ${config.currency}`;
+
+      // Add to history table
+      historyCount++;
+      const tableBody = document.querySelector("#historyTable tbody");
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${historyCount}</td>
+        <td>${basePrice} ${config.currency}</td>
+        <td>${policy}</td>
+        <td>${finalPrice} ${config.currency}</td>
+      `;
+      tableBody.appendChild(row);
+    }
+  </script>
+</body>
+</html>
