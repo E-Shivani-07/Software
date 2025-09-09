@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Library Management - Factory Method</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 40px;
+      background: #f7f7f7;
+    }
+    h1 {
+      color: #333;
+    }
+    .card {
+      display: inline-block;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      margin-bottom: 30px;
+    }
+    input, select, button {
+      margin: 10px;
+      padding: 8px;
+      font-size: 16px;
+    }
+    button {
+      cursor: pointer;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    table {
+      width: 80%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: #4CAF50;
+      color: white;
+    }
+    tr:hover {
+      background: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>📚 Library Management</h1>
+    <h3>Factory Method - Create Users</h3>
+
+    <label>Enter Name: </label>
+    <input type="text" id="userName" placeholder="e.g. Alice" /><br />
+
+    <label>Select User Type: </label>
+    <select id="userType">
+      <option value="student">Student</option>
+      <option value="teacher">Teacher</option>
+      <option value="admin">Admin</option>
+    </select><br />
+
+    <button onclick="addUser()">Create User</button>
+  </div>
+
+  <h2>👥 User List</h2>
+  <table id="userTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Role</th>
+        <th>Max Books</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+
+  <script>
+    // === User Classes ===
+    class Student {
+      constructor(name) {
+        this.name = name;
+        this.role = "Student";
+        this.maxBooks = 3;
+      }
+    }
+
+    class Teacher {
+      constructor(name) {
+        this.name = name;
+        this.role = "Teacher";
+        this.maxBooks = 10;
+      }
+    }
+
+    class Admin {
+      constructor(name) {
+        this.name = name;
+        this.role = "Admin";
+        this.maxBooks = "Unlimited";
+      }
+    }
+
+    // === Factory Method ===
+    class UserFactory {
+      static createUser(type, name) {
+        switch (type.toLowerCase()) {
+          case "student":
+            return new Student(name);
+          case "teacher":
+            return new Teacher(name);
+          case "admin":
+            return new Admin(name);
+          default:
+            throw new Error("Invalid user type");
+        }
+      }
+    }
+
+    // === UI Logic ===
+    let userCount = 0;
+    function addUser() {
+      const name = document.getElementById("userName").value.trim();
+      const type = document.getElementById("userType").value;
+
+      if (!name) {
+        alert("❌ Please enter a valid name.");
+        return;
+      }
+
+      // Use Factory to create user
+      const user = UserFactory.createUser(type, name);
+
+      // Add to table
+      userCount++;
+      const tableBody = document.querySelector("#userTable tbody");
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${userCount}</td>
+        <td>${user.name}</td>
+        <td>${user.role}</td>
+        <td>${user.maxBooks}</td>
+      `;
+      tableBody.appendChild(row);
+
+      // Reset input
+      document.getElementById("userName").value = "";
+    }
+  </script>
+</body>
+</html>
